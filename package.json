@@ -12,6 +12,8 @@
     "**/**/node-gyp": "7.0.0"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "^0.4.4",
+    "@changesets/cli": "^2.21.0",
     "all-contributors-cli": "^6.14.2",
     "axios": "^0.21.2",
     "doctoc": "^1.4.0",
@@ -102,5 +104,5 @@
     "packages/razzle-dev-utils",
     "packages/razzle-plugin-*"
   ],
-  "version": "4.2.13"
+  "version": "4.2.15"
 }

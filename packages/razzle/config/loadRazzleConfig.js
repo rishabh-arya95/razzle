@@ -8,31 +8,39 @@ const defaultRazzleOptions = require('./defaultOptions');
 const setupEnvironment = require('./env').setupEnvironment;
 const loadPlugins = require('./loadPlugins');
 
+const getModuleFormat = packageJson => {
+  // See https://nodejs.org/api/packages.html#type for more info on "type"
+  return packageJson.type || "commonjs";
+};
+
 module.exports = (webpackObject, razzleConfig, packageJsonIn) => {
   return new Promise(async resolve => {
-    console.info("If you have issues with css make sure postcss resolves to v8.2.4.");
-    console.info("See: https://razzlejs.org/getting-started#common-issues\n");
-    console.warn("CssMinimizerPlugin currently uses clean-css,\nwe will switch to cssnano once it supports postcss v8.2.4.\n");
-
     let razzle = razzleConfig || {};
     let packageJson = packageJsonIn || {};
     let paths = Object.assign({}, defaultPaths);
-    // Check for razzle.config.js file
-    if (fs.existsSync(paths.appRazzleConfig)) {
-      try {
-        razzle = require(paths.appRazzleConfig);
-      } catch (e) {
-        clearConsole();
-        logger.error('Invalid razzle.config.js file.', e);
-        process.exit(1);
-      }
-    }
+
     if (fs.existsSync(paths.appPackageJson)) {
       try {
         packageJson = require(paths.appPackageJson);
       } catch (e) {
         clearConsole();
         logger.error('Invalid package.json.', e);
+        process.exit(1);
+      }
+    }
+
+    // Check for razzle.config.js file
+    if (fs.existsSync(paths.appRazzleConfig)) {
+      try {
+        if (getModuleFormat(packageJson) === 'module') {
+          razzle = await import(paths.appRazzleConfig);
+        }
+        else {
+          razzle = require(paths.appRazzleConfig);
+        }
+      } catch (e) {
+        clearConsole();
+        logger.error('Invalid razzle.config.js file.', e);
         process.exit(1);
       }
     }
